@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import ConnectToMongo from "./config/db.js";
 import authRoutes from "./routes/blog.js"
 
@@ -6,6 +7,10 @@ const app = express();
  const PORT = 9000;
 
  ConnectToMongo();
+
+ app.use(cors());
+
+ app.use(express.json());
 
  app.get("/",(req,res)=>{
     res.send("API is Running....");

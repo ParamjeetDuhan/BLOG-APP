@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 
 const AuthSchema = new mongoose.Schema({
-    Username: {
+    username: {
         type : String,
     },
     email : {

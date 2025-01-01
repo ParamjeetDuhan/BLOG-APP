@@ -1,6 +1,42 @@
+import AuthModel from "../models/authModel.js";
+import bcryptjs from "bcryptjs"
+
 class AuthController {
-    static userRegistration = async (req,res) =>{ };
-    static userLogin = async (req,res) =>{ };
+    static userRegistration = async (req,res) =>{ 
+       const {username,email,password} =req.body;
+       try{
+              if(username&&email&&password){
+                const isUser = await AuthModel.findOne({email: email});
+                if(!isUser){
+                            //passwoed hasing
+                            const genSalt =await bcryptjs.genSalt(10);
+                            const hashedpassword = await bcryptjs.hash(password ,genSalt);
+                            // save a user
+                            const newUser = AuthModel({
+                                username,
+                                email,
+                                password: hashedpassword,
+                            });
+
+                            const saveUser = await newUser.save();
+                            if(saveUser){
+                                return res.status(200).json({ message : "User Registration Successfull"});
+                            }
+                }
+                else{
+                    return res.status(400).json({ message : "Email Already exists"});
+                }
+              }
+              else{
+                return res.status(400).json({ message : "all fields are required"});
+              }
+       }catch(error){
+        return res.status(400).json({ message : error.message});
+       }
+    };
+    static userLogin = async (req,res) =>{ 
+        res.send("User Login");
+    };
 }
 
 export default AuthController;
