@@ -1,5 +1,6 @@
 import AuthModel from "../models/authModel.js";
 import bcryptjs from "bcryptjs"
+import jwt from "jsonwebtoken"
 
 class AuthController {
     static userRegistration = async (req,res) =>{ 
@@ -31,11 +32,41 @@ class AuthController {
                 return res.status(400).json({ message : "all fields are required"});
               }
        }catch(error){
-        return res.status(400).json({ message : error.message});
+        return res.status(400).json({message: error.message});
        }
     };
     static userLogin = async (req,res) =>{ 
-        res.send("User Login");
+       const {email,password} = req.body;
+       try{
+               if(email&&password){
+                       const isEmail = await AuthModel.findOne({ email :email});
+                       if(isEmail){
+                            if(isEmail.email===email && await bcryptjs.compare(password, isEmail.password)){
+                                // Generate Token
+                                const token = jwt.sign({ userID : isEmail._id}, "Please Subscribe",{
+                                    expiresIn : "2d",
+                                });
+
+                                return res.status(200).json({
+                                    message : "Login Successfully",
+                                    token,
+                                    name : isEmail.username,
+                                });
+                            }
+                            else{
+                                return res.status(400).json({ message : "Wrong credential"});
+                            }
+                       }
+                       else{
+                        return res.status(400).json({ message : "Email is not found"});
+                       }
+               }
+               else{
+                return res.status(400).json({ message : "all fields are required"});
+               }
+       }catch(error){
+        return res.status(400).json({message: error.message});
+       }
     };
 }
 
