@@ -3,7 +3,7 @@ import BlogModel from "../models/blogModel.js";
 class BlogController {
     static getAllBlogs = async (req,res)=>{
            try{
-            const fetchAllBlogs = await BlogModel.find({});
+            const fetchAllBlogs = await BlogModel.find({user : req.user._id});
             return res.status(200).json(fetchAllBlogs);
            }catch(error){
             return req.status(400).json({ message : error.message});
@@ -18,7 +18,12 @@ class BlogController {
                             description: description,
                             category: category,
                             thumbnail: req.file.filename,
-                        })
+                            user: req.user._id,
+                        });
+                        const savedBlog= await   addBlog.save();
+                        if(savedBlog){
+                            return res.status(200).json({message: "Blog Saved Succesfully"});
+                        }
                 }else{
                     return res.status(400).json({message: "all fields are required"});
                 }
@@ -27,7 +32,18 @@ class BlogController {
         }
     }
     static getSingleBlogs = async (req,res)=>{
-        res.send("single new blog");
+       const id = req.params;
+       try {
+        if(id){
+                  const fetchBlogsById = await BlogModel.findById(id);
+                  return res.status(200).json(fetchBlogsById);
+        }
+        else{
+            return res.status(400).json({message: "invalid url"});
+        }
+       } catch (error) {
+        return res.status(400).json({message: error.message});
+       }
     }
 }
 

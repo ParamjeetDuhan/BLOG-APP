@@ -43,7 +43,7 @@ class AuthController {
                        if(isEmail){
                             if(isEmail.email===email && await bcryptjs.compare(password, isEmail.password)){
                                 // Generate Token
-                                const token = jwt.sign({ userID : isEmail._id}, "Please Subscribe",{
+                                const token = jwt.sign({ userID : isEmail._id},"pleaseSubscribe",{
                                     expiresIn : "2d",
                                 });
 
