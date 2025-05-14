@@ -16,6 +16,9 @@ const BlogSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         refer : "users",
     },
+      thumbnail: {
+    type: String, // ← Add this field
+  },
 });
 
 const BlogModel = mongoose.model("blog",BlogSchema);

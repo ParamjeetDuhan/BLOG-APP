@@ -1,6 +1,8 @@
-// src/pages/Blog.js
-import React, { useState } from 'react';
+// src/pages/AddBlog.js
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Card } from 'react-bootstrap';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AddBlog = () => {
   const [formData, setFormData] = useState({
@@ -10,21 +12,62 @@ const AddBlog = () => {
     thumbnail: null,
   });
 
-  const categories = ['Tech', 'Travel', 'Food', 'Lifestyle']; // Replace with dynamic categories if needed
+  const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
 
+  // Fetch categories from the backend
+  useEffect(() => {
+    const fetchAllCategories = async () => {
+      try {
+        const res = await axios.get("http://localhost:9000/api/v1/get/categories", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setCategories(res.data); // Assumes res.data is an array of category objects
+      } catch (err) {
+        alert("Failed to fetch categories");
+      }
+    };
+    fetchAllCategories();
+  }, []);
+
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === 'thumbnail' ? files[0] : value,
-    });
+
+    if (name === 'thumbnail') {
+      setFormData({ ...formData, thumbnail: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
-  const handleSubmit = (e) => {
+  // Submit the blog form
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitted:', formData);
 
-    // Optional: handle image upload or API call here
+    const postData = new FormData();
+    postData.append("title", formData.title);
+    postData.append("category", formData.category);
+    postData.append("description", formData.description);
+    if (formData.thumbnail) {
+      postData.append("thumbnail", formData.thumbnail);
+    }
+
+    try {
+      const res = await axios.post("http://localhost:9000/api/v1/add/blog", postData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      alert(res.data.message || "Blog added successfully!");
+      navigate("/");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error adding blog");
+    }
   };
 
   return (
@@ -54,8 +97,8 @@ const AddBlog = () => {
             >
               <option value="">Select category</option>
               {categories.map((cat, idx) => (
-                <option key={idx} value={cat}>
-                  {cat}
+                <option key={idx} value={cat._id}>
+                  {cat.title}
                 </option>
               ))}
             </Form.Select>

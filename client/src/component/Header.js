@@ -1,9 +1,19 @@
-// src/components/Header.js
 import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    alert("LOGOUT SUCCESSFULLY");
+    navigate("/Login");
+  };
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
@@ -14,8 +24,17 @@ const Header = () => {
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/AddBlog">AddBlog</Nav.Link>
             <Nav.Link as={Link} to="/AddCategory">AddCategory</Nav.Link>
-            <Nav.Link as={Link} to="/Login">Login</Nav.Link>
-            <Nav.Link as={Link} to="/Register">Register</Nav.Link>
+            {token ? (
+              <>
+                <Nav.Link as={Link} to="#">Welcome: {username}</Nav.Link>
+                <Nav.Link as={Link} to="/Login" onClick={handleLogout}>Logout</Nav.Link>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/Login">Login</Nav.Link>
+                <Nav.Link as={Link} to="/Register">Register</Nav.Link>
+              </>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>
@@ -24,5 +43,3 @@ const Header = () => {
 };
 
 export default Header;
-
-

@@ -1,10 +1,12 @@
 // src/pages/Login.js
 import React,{useState} from 'react';
 import axios from 'axios';
+import {useNavigate} from 'react-router-dom'
 
 import { Form, Button, Card } from 'react-bootstrap';
 
 const Login = () => {
+  const Navigate = useNavigate();
   const[initialvalue,SetValue] = useState({
        email:"",
        password:""
@@ -15,7 +17,9 @@ const Login = () => {
     try {
        const res = await axios.post("http://localhost:9000/api/v1/user/login",initialvalue);
        alert(res.data.message)
-       console.log(res.data.message)
+             localStorage.setItem("token",res.data.token);
+             localStorage.setItem("username",res.data.name);
+              Navigate("/")
     } catch (error) {
       alert(error.response.data.message)
     }

@@ -1,23 +1,33 @@
 import express from "express";
 import cors from "cors";
 import ConnectToMongo from "./config/db.js";
-import authRoutes from "./routes/blog.js"
+import authRoutes from "./routes/blog.js";
+import multer from "multer"; // For handling file uploads
 
 const app = express();
- const PORT = 9000;
+const PORT = 9000;
 
- ConnectToMongo();
+// Connect to MongoDB
+ConnectToMongo();
 
- app.use(cors());
+// Middleware to handle CORS
+app.use(cors());
 
- app.use(express.json());
+// Middleware to parse JSON bodies in request
+app.use(express.json());
 
- app.get("/",(req,res)=>{
-    res.send("API is Running....");
- });
-// api routes
- app.use("/api/v1",authRoutes);
+// Serve static files (images) from the 'public/upload' directory
+app.use("/uploads", express.static("public/upload"));
 
-app.listen(PORT,()=>{
-    console.log(`API is running on ${PORT}`);
+// Add routes
+app.get("/", (req, res) => {
+  res.send("API is Running....");
+});
+
+// Use the API routes for blog operations
+app.use("/api/v1", authRoutes);
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`API is running on ${PORT}`);
 });

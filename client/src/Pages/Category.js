@@ -1,20 +1,29 @@
-// src/pages/Category.js
 import React, { useState } from 'react';
-import { Form, Button, Card, ListGroup } from 'react-bootstrap';
+import { Form, Button, Card } from 'react-bootstrap';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Category = () => {
-  const [title, setTitle] = useState('');
-  const [categories, setCategories] = useState([
-    'Tech',
-    'Travel',
-    'Food',
-  ]);
+  const [Emptytitle, setTitle] = useState({
+    title: "",
+  });
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (title.trim()) {
-      setCategories([...categories, title.trim()]);
-      setTitle('');
+    try {
+      const res = await axios.post("http://localhost:9000/api/v1/add/categories", Emptytitle,
+        {
+          headers : {
+            "Authorization":`Bearer ${localStorage.getItem("token")}`,
+          }
+        }
+      );
+      alert(res.data.message);
+    } catch (error) {
+      alert(error.response?.data?.message || "An error occurred");
+      navigate("/");
     }
   };
 
@@ -29,8 +38,11 @@ const Category = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter category"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                name="title" 
+                value={Emptytitle.title}
+                onChange={(e) =>
+                  setTitle({ ...Emptytitle, [e.target.name]: e.target.value })
+                }
               />
             </Form.Group>
             <Button variant="success" type="submit" className="w-100">

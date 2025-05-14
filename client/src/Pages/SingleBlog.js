@@ -1,40 +1,49 @@
 // src/pages/SingleBlog.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card } from 'react-bootstrap';
-
-// Sample posts (you can replace this with actual state or API data)
-const posts = [
-  {
-    id: '1',
-    title: 'Welcome to My Blog',
-    category: 'Tech',
-    description: 'This is a detailed article about building blogs in React...',
-    thumbnail: 'https://via.placeholder.com/600x300?text=Blog+1',
-  },
-  {
-    id: '2',
-    title: 'React Router Tips',
-    category: 'Tech',
-    description: 'Learn how to use React Router for clean navigation...',
-    thumbnail: 'https://via.placeholder.com/600x300?text=Blog+2',
-  },
-];
+import { Card, Button } from 'react-bootstrap';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SingleBlog = () => {
+  const navigate = useNavigate();
+  const [SinglePost, SetSinglePost] = useState(null);  // Initialize as null, not an array
   const { id } = useParams();
-  const blog = posts.find((post) => post.id === id);
 
-  if (!blog) return <h2 className="mt-4 text-center">Blog Not Found</h2>;
+  useEffect(() => {
+    const fetchSingleBlog = async () => {
+      try {
+     const res = await axios.get(`http://localhost:9000/api/v1/get/blogs/${id}`, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+        SetSinglePost(res.data);
+      } catch (error) {
+        console.error("Error fetching blog:", error);
+      }
+    };
+
+    fetchSingleBlog();
+  }, [id]);
+
+  // Check if SinglePost is null or undefined
+  if (!SinglePost) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <Card className="mt-4">
-      <Card.Img variant="top" src={blog.thumbnail} />
+      {/* Ensure thumbnail exists before using it */}
+      {SinglePost.thumbnail && (
+        <Card.Img variant="top" src={`http://localhost:9000/uploads/${SinglePost.thumbnail}`} />
+      )}
       <Card.Body>
-        <Card.Title>{blog.title}</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">{blog.category}</Card.Subtitle>
-        <Card.Text>{blog.description}</Card.Text>
+        <Card.Title>{SinglePost.title}</Card.Title>
+        <Card.Subtitle className="mb-2 text-muted">{SinglePost.category}</Card.Subtitle>
+        <Card.Text>{SinglePost.description}</Card.Text>
       </Card.Body>
+      <Button onClick={() => navigate("/")}>Back to posts</Button>
     </Card>
   );
 };
