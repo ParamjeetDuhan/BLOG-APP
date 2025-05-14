@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import ConnectToMongo from "./config/db.js";
 import authRoutes from "./routes/blog.js";
-import multer from "multer"; // For handling file uploads
 
 const app = express();
 const PORT = 9000;
